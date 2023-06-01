@@ -30,14 +30,18 @@ def get_extensions():
     main_file = glob.glob(os.path.join(extensions_dir, "*.cpp"))
     source_cpu = glob.glob(os.path.join(extensions_dir, "cpu", "*.cpp"))
     source_cuda = glob.glob(os.path.join(extensions_dir, "cuda", "*.cu"))
+    source_hip = glob.glob(os.path.join(extensions_dir, "hip", "*.hip"))
 
     sources = main_file + source_cpu
     extension = CppExtension
     extra_compile_args = {"cxx": []}
     define_macros = []
 
-    # Force cuda since torch ask for a device, not if cuda is in fact available.
-    if (os.environ.get('FORCE_CUDA') or torch.cuda.is_available()) and CUDA_HOME is not None:
+    if (os.environ.get('USE_HIP') or torch.version.hip is not None):
+        extension = CUDAExtension
+        sources += source_hip
+    elif (os.environ.get('FORCE_CUDA') or torch.cuda.is_available()) and CUDA_HOME is not None:
+        # Force cuda since torch ask for a device, not if cuda is in fact available.
         extension = CUDAExtension
         sources += source_cuda
         define_macros += [("WITH_CUDA", None)]
