@@ -36,8 +36,12 @@ def get_extensions():
     extra_compile_args = {"cxx": []}
     define_macros = []
 
-    # Force cuda since torch ask for a device, not if cuda is in fact available.
-    if (os.environ.get('FORCE_CUDA') or torch.cuda.is_available()) and CUDA_HOME is not None:
+    if (os.environ.get('USE_HIP') or torch.version.hip is not None):
+        # Use HIP. CUDAExtension from PyTorch handles HIP internally, including its own hipify script.
+        extension = CUDAExtension
+        sources += source_cuda
+    elif (os.environ.get('FORCE_CUDA') or torch.cuda.is_available()) and CUDA_HOME is not None:
+        # Force cuda since torch ask for a device, not if cuda is in fact available.
         extension = CUDAExtension
         sources += source_cuda
         define_macros += [("WITH_CUDA", None)]
