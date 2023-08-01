@@ -314,10 +314,31 @@ def main(args):
     trainer.resume_or_load(resume=args.resume)
     return trainer.train()
 
-
+'''
 if __name__ == "__main__":
     args = default_argument_parser().parse_args()
     print("Command Line Args:", args)
+    launch(
+        main,
+        args.num_gpus,
+        num_machines=args.num_machines,
+        machine_rank=args.machine_rank,
+        dist_url=args.dist_url,
+        args=(args,),
+    )
+'''
+
+if __name__ == "__main__":
+    # Set location of this file as a working directory
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    # Parse arguments and print them
+    args = default_argument_parser().parse_args()
+    print("Command Line Args:", args)
+    # Manually update machine rank if slurm process id available
+    # Required when running multi-node multi-gpu training in SLURM
+    if os.environ.get('SLURM_PROCID') is not None:
+        args.machine_rank = int(os.environ['SLURM_PROCID'])
+    # Launch training
     launch(
         main,
         args.num_gpus,
