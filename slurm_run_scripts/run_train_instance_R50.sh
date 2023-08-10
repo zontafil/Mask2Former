@@ -2,11 +2,11 @@
 #SBATCH --job-name=R50_Maxvector
 #SBATCH --account=project_462000238
 #SBATCH --partition=standard-g
-#SBATCH --time=00:30:00
-###SBATCH --ntasks=1
+#SBATCH --time=02:30:00
+#SBATCH --ntasks=1
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --gpus-per-node=8
+#SBATCH --gpus-per-node=4
 #SBATCH --output=../slurm_run_logs/Train_R50_instance.txt
 
 ### Define master port and set the first node name as master address
@@ -25,14 +25,15 @@ echo "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX "
 
 ###
 cd ..
-module load LUMI/22.08 partition/G
-module load singularity-bindings
-module load aws-ofi-rccl
 source myenv/bin/activate
 
+export MIOPEN_USER_DB_PATH="/tmp/my-miopen-detectron"
+export MIOPEN_CUSTOM_CACHE_DIR=${MIOPEN_USER_DB_PATH}
+rm -rf ${MIOPEN_USER_DB_PATH}
+mkdir -p ${MIOPEN_USER_DB_PATH}
+
 # Instance segmentation training
-srun python3 train_net.py --num-gpus 1 --num-machines 4 --config-file configs/coco/instance-segmentation/maskformer2_R50_bs16_50ep.yaml MODEL.WEIGHTS checkpoints/R-50.pkl
-#srun python3 ../train_net.py --num-gpus 4 --num-machines 2 --config-file configs/coco/instance-segmentation/maskformer2_R50_bs16_50ep.yaml MODEL.WEIGHTS experiments/coco_instance_R50/model_final.pth
+srun python3 train_net.py --num-gpus 4 --num-machines 1 --config-file configs/coco/instance-segmentation/maskformer2_R50_bs16_50ep.yaml MODEL.WEIGHTS checkpoints/R-50.pkl
 
 # Resume training. Resume does not need weight spcified, instead it used weights specified: ./experiments/R50/last_checkpoint
 #srun python3 ../train_net.py --num-gpus 4 --num-machines 2 --config-file configs/coco/instance-segmentation/maskformer2_R50_bs16_50ep.yaml --resume
