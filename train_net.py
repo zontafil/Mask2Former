@@ -9,6 +9,7 @@ try:
     from shapely.errors import ShapelyDeprecationWarning
     import warnings
     warnings.filterwarnings('ignore', category=ShapelyDeprecationWarning)
+    warnings.filterwarnings("ignore", category=RuntimeWarning, module="shapely.set_operations")
 except:
     pass
 
@@ -333,11 +334,12 @@ if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     # Parse arguments and print them
     args = default_argument_parser().parse_args()
-    print("Command Line Args:", args)
     # Manually update machine rank if slurm process id available
     # Required when running multi-node multi-gpu training in SLURM
     if os.environ.get('SLURM_PROCID') is not None:
         args.machine_rank = int(os.environ['SLURM_PROCID'])
+    # Print args
+    print("Command Line Args:", args)
     # Launch training
     launch(
         main,

@@ -2,11 +2,11 @@
 #SBATCH --job-name=R50_Maxvector
 #SBATCH --account=project_462000238
 #SBATCH --partition=standard-g
-#SBATCH --time=02:30:00
-#SBATCH --ntasks=1
-#SBATCH --nodes=1
+#SBATCH --time=01:00:00
+#SBATCH --nodes=2
 #SBATCH --ntasks-per-node=1
-#SBATCH --gpus-per-node=4
+#SBATCH --cpus-per-task=56
+#SBATCH --gpus-per-node=8
 #SBATCH --output=../slurm_run_logs/Train_R50_instance.txt
 
 ### Define master port and set the first node name as master address
@@ -33,7 +33,7 @@ rm -rf ${MIOPEN_USER_DB_PATH}
 mkdir -p ${MIOPEN_USER_DB_PATH}
 
 # Instance segmentation training
-srun python3 train_net.py --num-gpus 4 --num-machines 1 --config-file configs/coco/instance-segmentation/maskformer2_R50_bs16_50ep.yaml MODEL.WEIGHTS checkpoints/R-50.pkl
+srun python3 train_net.py --num-gpus 8 --num-machines 2 --config-file configs/coco/instance-segmentation/maskformer2_R50_bs16_50ep.yaml MODEL.WEIGHTS checkpoints/R-50.pkl
 
 # Resume training. Resume does not need weight spcified, instead it used weights specified: ./experiments/R50/last_checkpoint
 #srun python3 ../train_net.py --num-gpus 4 --num-machines 2 --config-file configs/coco/instance-segmentation/maskformer2_R50_bs16_50ep.yaml --resume
