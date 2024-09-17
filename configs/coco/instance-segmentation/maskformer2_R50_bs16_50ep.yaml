@@ -42,3 +42,4 @@ MODEL:
       PANOPTIC_ON: False
       OVERLAP_THRESHOLD: 0.8
       OBJECT_MASK_THRESHOLD: 0.8
+OUTPUT_DIR: ./experiments/R50
